@@ -25,6 +25,7 @@ object windowOnSession {
       .load()
 
     import session.implicits._
+    //
     val wordDF: DataFrame = df.as[String].flatMap(line => {
       val ts: String = line.split(" ")(0)
       val tuples: Array[(Timestamp, String)] = line
@@ -34,12 +35,11 @@ object windowOnSession {
       tuples
     }).toDF("ts", "word")
 
+    // 只有 3.2 以上的 spark-sql_2.12 才有 session_window
     import org.apache.spark.sql.functions._
-
-    //todo window 改换成session_window 出现问题
     val groupDF: DataFrame = wordDF
       .groupBy(
-        window($"ts", "10 seconds"),
+        session_window($"ts", "10 seconds"),
         $"word")
       .count()
 
